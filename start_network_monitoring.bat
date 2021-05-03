@@ -1,40 +1,42 @@
-@ECHO OFF
-@SETLOCAL
-
-::Set the address you wish to ping (default: google.com)
-SET adress=216.58.208.238
-
-::Set the speed between pings (In seconds)
-SET speed=10
-
-::Set the file name to save as - Can include location ex (C:\Users\%username%\Desktop\file.csv)
-SET filename=logs.csv
-
-echo Date, Time, Address, Ping >> %filename%
-
-GOTO :ping
-
+@echo OFF
+@setlocal
+ 
+title Ping Logging by Garoo
+ 
+:: Set the ip address for the modem/router in the local network
+set ip1=192.168.100.1
+ 
+:: Set the ip address you wish to ping for comparison, default: google.com
+set ip2=172.217.19.46
+ 
+:: Set the interval between pings (in seconds)
+set interval=5
+ 
+:: Set the logs file name (must have the .csv extension)
+set file=pings.csv
+ 
+echo.    Date and Time       ^|  %ip1%  ^|  %ip2%
+echo.
+:: Write the table column headers to the file
+echo. Date, Time, Ping to %ip1%, Ping to %ip2% >> %file%
+ 
 :ping
-::Ping and extract time= into variable
-for /F "tokens=7 delims== " %%G in ('ping -4 -n 1 %adress%^|findstr /i "time="') do set ping=%%G
-echo Current ping for %adress%: %ping%
-
-::Set Timestamp
-set curTimestamp=%date:~4,2%-%date:~7,2%-%date:~10,4%,%time:~0,2%:%time:~3,2%:%time:~6,2%
-
-::Create the logs file at the desired location
-echo %curTimestamp%, %adress%, %ping% >> %filename%
-
-:: UNCOMMENT AND EDIT THIS IF YOU WANT TO SHOW HIGH PINGS (>60 MS) IN THE LOGS FILE
-::if %ping% geq 60 GOTO :disconnected
-
-::Wait for x second before next ping
+:: Ping and extract time into variables
+for /F "tokens=7 delims== " %%G in ('ping -4 -n 1 %ip1%^|findstr /i "time="') do set ping1=%%G
+for /F "tokens=7 delims== " %%G in ('ping -4 -n 1 %ip2%^|findstr /i "time="') do set ping2=%%G
+ 
+:: Set timestamp
+set timestamp=%date:~4,2%-%date:~7,2%-%date:~10,4%, %time:~0,2%:%time:~3,2%:%time:~6,2%
+ 
+:: Write the timestamp and results to the file
+echo %timestamp%    ^|       %ping1%       ^|      %ping2%
+ 
+:: Write the timestamp and results to the file
+echo %timestamp%, %ping1:~0,-2%, %ping2:~0,-2% >> %file%
+ 
+:: Wait for x seconds before the next ping
 :wait
-PING localhost -n %speed% >NUL
-
+ping localhost -n %interval% >NUL
+ 
+:: Repeat
 goto :ping
-
-:::disconnected
-:: UNCOMMENT THIS IF YOU WANT TO SHOW HIGH PINGS (>60 MS) IN THE LOGS FILE
-::echo HIGH PING,---,---,--- >> %filename%
-::goto :wait

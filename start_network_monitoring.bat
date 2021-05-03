@@ -1,7 +1,7 @@
 @echo OFF
 @setlocal
  
-title Ping Logging by Garoo
+title Ping Logging
  
 :: Set the ip address for the modem/router in the local network
 set ip1=192.168.100.1
